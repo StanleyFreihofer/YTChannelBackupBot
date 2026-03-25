@@ -179,3 +179,16 @@ cython_debug/
 #  refer to https://docs.cursor.com/context/ignore-files
 .cursorignore
 .cursorindexingignore
+
+# --- YouTube API / Sensitive Credentials ---
+# The main secret file from Google Cloud Console
+client_secrets.json
+
+# The token generated after you log in via browser
+token.json
+
+# Archive files for download/upload history
+downloaded_history.txt
+uploaded_history.txt
+Source/client_secret.json
+Source/token.pickle
