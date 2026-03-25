@@ -58,8 +58,14 @@ def log_finished_upload(video_title):
     with open(HISTORY_FILE, "a", encoding="utf-8") as f:
         f.write(video_title + "\n")
 
-def start_upload(DOWNLOADS_DIR=None):
+def start_upload(DOWNLOADS_DIR=None, log_callback=None):
     print(f"Scanning folder: {DOWNLOADS_DIR}")
+
+    def internal_log(msg):
+        if log_callback: log_callback(msg)
+        print(msg)
+
+    internal_log(f"Scanning folder: {DOWNLOADS_DIR}")
     
     # Build the Google Service (Triggers Browser Login)
     youtube = get_authenticated_service()
@@ -98,6 +104,7 @@ def start_upload(DOWNLOADS_DIR=None):
 
                 print(f"--- STARTING UPLOAD: {meta['title']} ---")
                 
+                internal_log(f"--- STARTING UPLOAD: {meta['title']} ---")
                 # 3. Prepare the File Stream
                 media = MediaFileUpload(video_path, chunksize=1024*1024, resumable=True)
                 
@@ -113,8 +120,11 @@ def start_upload(DOWNLOADS_DIR=None):
                     status, response = request.next_chunk()
                     if status:
                         print(f"Uploaded {int(status.progress() * 100)}%", end='\r')
+                        # Update progress in GUI console
+                        internal_log(f"Upload Progress: {int(status.progress() * 100)}%")
                 
                 log_finished_upload(meta['title'])
+                internal_log(f"SUCCESS! Video ID: {response.get('id')}")
                 print(f"\nSUCCESS! Video ID: {response.get('id')}")
 
 if __name__ == "__main__":

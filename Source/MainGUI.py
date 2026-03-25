@@ -133,15 +133,14 @@ class SyncBotApp(ctk.CTk):
 
         self.sync_now_button.configure(state="disabled")
         try:
-            self.log(f"Syncing {target_url} to {save_path}...")
+            # We pass self.log so the other scripts can "talk" to this textbox
+            self.log(f"Initiating Sync Pipeline...")
             
-            # 2. Pass variables to your modules
-            # Note: We need to tweak Backup.start_backup and Uploader.start_upload 
-            # to accept these arguments!
-            Backup.start_backup(target_url, save_path) 
-            Uploader.start_upload(save_path)
+            Backup.start_backup(target_url, save_path, log_callback=self.log) 
+            Uploader.start_upload(save_path, log_callback=self.log)
             
-            self.log("Cycle Complete!")
+            self.log("Full Pipeline Cycle Complete!")
+
         except Exception as e:
             self.log(f"Error: {e}")
         finally:
