@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -7,8 +8,21 @@ import pickle
 from googleapiclient.http import MediaFileUpload
 from google.auth.transport.requests import Request
 
+
+
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 # --- CONFIGURATION ---
-CLIENT_SECRETS_FILE = "client_secret.json"
+# Old: CLIENT_SECRETS_FILE = "client_secret.json"
+CLIENT_SECRETS_FILE = resource_path("client_secret.json")
 DOWNLOADS_DIR = r"C:\Users\stanl\Downloads" #place where downloaded videos are stored
 SCOPES = ["https://www.googleapis.com/auth/youtube.upload"] #tells google we want "upload" permissions
 HISTORY_FILE = "uploaded_log.txt"

@@ -7,18 +7,35 @@ import sys
 TARGET_URL = "https://www.youtube.com/@thewhambammers6309/videos"
 SAVE_PATH = r"C:\Users\stanl\Downloads"
 
+def resource_path(relative_path):
+    """ Get absolute path to resource, works for dev and for PyInstaller """
+    try:
+        # PyInstaller creates a temp folder and stores path in _MEIPASS
+        base_path = sys._MEIPASS
+    except Exception:
+        base_path = os.path.abspath(".")
+
+    return os.path.join(base_path, relative_path)
+
 def start_backup(TARGET_URL=None, SAVE_PATH=None, log_callback=None):
-    yt_dlp_exe = r"C:\Users\stanl\AppData\Local\Python\pythoncore-3.14-64\Scripts\yt-dlp.exe"
-    ffmpeg_dir = r"C:\Program Files\ffmpeg\bin"
-    archive_file = "downloaded_history.txt"
+    yt_dlp_bin = resource_path("yt-dlp.exe")
+    
+    cookie_path = os.path.join(os.path.dirname(sys.executable), "youtube_cookies.txt")
+    base_dir = os.path.dirname(sys.executable)
+    ffmpeg_dir = os.path.join(base_dir, "ffmpeg", "bin")
+    archive_file = os.path.join(os.path.dirname(sys.executable), "downloaded_history.txt")
 
     command = [
-        yt_dlp_exe, 
+        yt_dlp_bin, 
         "--ffmpeg-location", ffmpeg_dir,
         "--download-archive", archive_file,    #save data for what videos have been downloaded
+        "--cookies", cookie_path,
         "-f", "bestvideo[ext=mp4]+bestaudio[ext=m4a]/best[ext=mp4]/best",
         "--write-info-json",
         "--newline", #Forces yt-dlp to output progress on new lines
+        "--sleep-requests", "1",   # Sleep 1 second between requests
+        "--sleep-interval", "5",   # Sleep 5 seconds between downloads
+        "--max-sleep-interval", "30", # Randomize sleep up to 30s to look "human"
         "-o", f"{SAVE_PATH}/%(title)s.%(ext)s",
         TARGET_URL
     ]
